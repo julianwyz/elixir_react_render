@@ -69,8 +69,11 @@ defmodule ReactRender do
     case do_get_html(component_path, props) do
       {:error, %{message: message, stack: stack}} ->
         raise ReactRender.RenderError, message: message, stack: stack
+      
+      {:error, decode_error} ->
+        raise ReactRender.RenderError, message: "Jason Decode Error"
 
-      {:ok, %{"markup" => markup, "component" => component}} ->
+      {:ok, [_, %{"markup" => markup, "component" => component}]} ->
         props =
           props
           |> Jason.encode!()
@@ -102,6 +105,9 @@ defmodule ReactRender do
         }
 
         {:error, normalized_error}
+  
+      {:error, decode_error} ->
+        {:error, decode_error}
 
       {:ok, result} ->
         {:ok, result}
